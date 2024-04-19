@@ -73,8 +73,7 @@ class IndexRecyclerView(ctx: Context, attrs: AttributeSet) : RecyclerView(ctx, a
   /** 当前是否在等待索引条消失. */
   private var isWaitDismiss = false
 
-  private var headersDecoration: StickyRecyclerHeadersDecoration? = null
-
+  private var headersDecoration: RecyclerView.ItemDecoration? = null
   private val dismissAction: Runnable by lazy {
     Runnable {
       hideIndexBar()
@@ -295,7 +294,59 @@ class IndexRecyclerView(ctx: Context, attrs: AttributeSet) : RecyclerView(ctx, a
     super.onDetachedFromWindow()
   }
 
+//  fun setStickyMode(sticky:Boolean){
+//    if (sticky) {
+//      headersDecoration?.let {
+//        removeItemDecoration(it)
+//      }
+//
+//      headersDecoration = StickyRecyclerHeadersDecoration(adapter as StickyRecyclerHeadersAdapter<RecyclerView.ViewHolder>)
+//      headersDecoration?.let {
+//        addItemDecoration(it)
+//      }
+//    }else{
+//      headersDecoration?.let {
+//        removeItemDecoration(it)
+//      }
+//
+//      headersDecoration = NonStickyRecyclerHeadersDecoration(adapter as StickyRecyclerHeadersAdapter<RecyclerView.ViewHolder>)
+//      headersDecoration?.let {
+//        addItemDecoration(it)
+//      }
+//    }
+//  }
+
+   fun setAdapter(adapter: Adapter<*>?,sticky :Boolean) {
+     isIndexAdapter = adapter is IndexRecyclerViewAdapter<*>
+     if (isIndexAdapter) {
+       if (sticky) {
+         headersDecoration?.let {
+           removeItemDecoration(it)
+         }
+
+         headersDecoration =
+           StickyRecyclerHeadersDecoration(adapter as StickyRecyclerHeadersAdapter<RecyclerView.ViewHolder>)
+         headersDecoration?.let {
+           addItemDecoration(it)
+         }
+       } else {
+         headersDecoration?.let {
+           removeItemDecoration(it)
+         }
+
+         headersDecoration =
+           NonStickyRecyclerHeadersDecoration(adapter as StickyRecyclerHeadersAdapter<RecyclerView.ViewHolder>)
+         headersDecoration?.let {
+           addItemDecoration(it)
+         }
+
+       }
+       setAdapter(adapter)
+     }
+   }
+
   override fun setAdapter(adapter: Adapter<*>?) {
+  if (headersDecoration==null){
     isIndexAdapter = adapter is IndexRecyclerViewAdapter<*>
     if (isIndexAdapter) {
       headersDecoration?.let {
@@ -307,8 +358,14 @@ class IndexRecyclerView(ctx: Context, attrs: AttributeSet) : RecyclerView(ctx, a
         addItemDecoration(it)
       }
     }
+  }
+
+
+
     super.setAdapter(adapter)
   }
+
+
 
   override fun setLayoutManager(layout: LayoutManager?) {
   }

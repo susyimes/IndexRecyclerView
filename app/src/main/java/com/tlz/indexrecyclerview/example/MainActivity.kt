@@ -24,16 +24,23 @@ class MainActivity : AppCompatActivity() {
 
         // 正常情况，索引条的索引与数据的索引一致.
         val myViewAdapter = MyViewAdapter()
-        rv.adapter = myViewAdapter
-        val listOf = listOf("A2", "C3", "B4")
+
+        //rv.adapter = myViewAdapter
+
+        rv.setAdapter(myViewAdapter,false)
+
+
 
         val arrayList = ArrayList<ItemData>()
+        val listOf = listOf("A2", "A3", "A4")
         arrayList.add(ItemData(listOf, "A"))
-        arrayList.add(ItemData(listOf, "C"))
+        val listOf2 = listOf("C2", "C3", "C4")
+        arrayList.add(ItemData(listOf2, "C"))
         arrayList.add(ItemData(listOf, "J"))
         arrayList.add(ItemData(listOf, "K"))
         arrayList.add(ItemData(listOf, "L"))
-        arrayList.add(ItemData(listOf, "N"))
+        val listOf3 = listOf("N2", "N3", "N4")
+        arrayList.add(ItemData(listOf3, "N"))
         arrayList.add(ItemData(listOf, "O"))
         arrayList.add(ItemData(listOf, "P"))
         arrayList.add(ItemData(listOf, "Q"))
@@ -64,6 +71,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     class MyViewAdapter : SampleIndexRecyclerViewAdapter<ItemData, RecyclerView.ViewHolder, RecyclerView.ViewHolder>() {
+
 
         init {
             // 设置数据
