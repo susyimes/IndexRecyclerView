@@ -3,11 +3,13 @@ package com.tlz.indexrecyclerview.example
 import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
+import com.github.promeg.pinyinhelper.Pinyin
 import com.tlz.indexrecyclerview.Index
 import com.tlz.indexrecyclerview.SampleIndex
 import com.tlz.indexrecyclerview.SampleIndexRecyclerViewAdapter
@@ -32,21 +34,27 @@ class MainActivity : AppCompatActivity() {
 
 
         val arrayList = ArrayList<ItemData>()
-        val listOf = listOf("A2", "A3", "A4")
-        arrayList.add(ItemData(listOf, "A"))
-        val listOf2 = listOf("C2", "C3", "C4")
-        arrayList.add(ItemData(listOf2, "C"))
-        arrayList.add(ItemData(listOf, "J"))
-        arrayList.add(ItemData(listOf, "K"))
-        arrayList.add(ItemData(listOf, "L"))
-        val listOf3 = listOf("N2", "N3", "N4")
-        arrayList.add(ItemData(listOf3, "N"))
-        arrayList.add(ItemData(listOf, "O"))
-        arrayList.add(ItemData(listOf, "P"))
-        arrayList.add(ItemData(listOf, "Q"))
-        arrayList.add(ItemData(listOf, "R"))
-        arrayList.add(ItemData(listOf, "S"))
-        arrayList.add(ItemData(listOf, "T"))
+        val listOf0 = listOf("所有人")
+        arrayList.add(ItemData(listOf0, " "))
+        val listOf = listOf("阿娇", "阿毛", "狗","计划","球球","1XX","susyimes")
+        classifyByInitials(listOf).forEach {
+            arrayList.add(it)
+        }
+
+//        arrayList.add(ItemData(listOf, "A"))
+//        val listOf2 = listOf("C2", "C3", "C4")
+//        arrayList.add(ItemData(listOf2, "C"))
+//        arrayList.add(ItemData(listOf, "J"))
+//        arrayList.add(ItemData(listOf, "K"))
+//        arrayList.add(ItemData(listOf, "L"))
+//        val listOf3 = listOf("N2", "N3", "N4")
+//        arrayList.add(ItemData(listOf3, "N"))
+//        arrayList.add(ItemData(listOf, "O"))
+//        arrayList.add(ItemData(listOf, "P"))
+//        arrayList.add(ItemData(listOf, "Q"))
+//        arrayList.add(ItemData(listOf, "R"))
+//        arrayList.add(ItemData(listOf, "S"))
+//        arrayList.add(ItemData(listOf, "T"))
         myViewAdapter.setNewData(arrayList)
         // 索引条的索引比数据的索引多的情况(如：数据首字母只有A到F的索引，但右边的索引条显示的是A到Z).
 //        rv.adapter = MyViewAdapter2()
@@ -64,6 +72,27 @@ class MainActivity : AppCompatActivity() {
 //        }
     }
 
+    fun classifyByInitials(listOfNames: List<String>): List<ItemData> {
+        val map = mutableMapOf<String, MutableList<String>>()
+
+        // 将每个字符串分类到对应的首字母Key下
+        listOfNames.forEach { name ->
+            val firstChar = name[0]
+            val index = when {
+                Pinyin.isChinese(firstChar) -> Pinyin.toPinyin(firstChar).first().toUpperCase().toString() // 中文
+                firstChar.isLetter() -> firstChar.toUpperCase().toString() // 英文
+                else -> "#" // 其他字符归类到 '#'
+            }
+
+            map.getOrPut(index) { mutableListOf() }.add(name)
+        }
+
+        // 创建ItemData列表，并将 '#' 分类移动到列表末尾
+        val items = map.entries.sortedBy { if (it.key == "#") "ZZZ" else it.key }
+            .map { (index, names) -> ItemData(names, index) }
+        return items
+    }
+
     class ItemData(val data: List<String>, index: String) : SampleIndex(index) {
 
         override fun getDataCount(): Int = data.size
@@ -71,20 +100,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     class MyViewAdapter : SampleIndexRecyclerViewAdapter<ItemData, RecyclerView.ViewHolder, RecyclerView.ViewHolder>() {
-
-
-        init {
-            // 设置数据
-           setNewData((0 until 16).mapTo(mutableListOf()) {
-               val count = Random().nextInt(8) + 1
-               ItemData((0 until count).mapTo(mutableListOf()) { it.toString() }, "${('A'.toInt() + it).toChar()}")
-           })
-        }
-
         override fun onBindIndexViewHolder(holder: RecyclerView.ViewHolder, position: Int, item: ItemData) {
-
             holder.itemView.tv_item.setTextColor(Color.BLACK)
             holder.itemView.tv_item.text = item.index
+            //" "空格用于所有人
+            if (item.index == " ") {
+                holder.itemView.tv_item.height = 0
+            } else {
+                holder.itemView.tv_item.height = 80
+            }
         }
 
         override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int, item: ItemData, subPosition: Int) {
